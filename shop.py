@@ -728,7 +728,7 @@ data = []  # Для работы с username и проверки админа
 
 
 class Main_Window(QMainWindow):  # Главное окно, с базой данных, поиском, входом, а так же
-    # изменением списка, админом
+    # изменением списка базы данных под аккаунтом админа
     def __init__(self):
         super().__init__()
         f = io.StringIO(main_window)
@@ -824,6 +824,55 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
         self.user_enter.clicked.connect(self.enter_user)
         self.admin_enter.clicked.connect(self.enter_user)
 
+    def registr(self): #регистрация нового пользователя
+        data_user = []
+        log_flag = True
+
+        self.admin_enter.hide()
+        self.user_enter.hide()
+
+        self.password_conf.show()
+        self.password_conf_edit.show()
+
+        with open('Base_users.csv', encoding='utf8') as csvfile:
+            reader = csv.reader(csvfile, delimiter=';')
+            for j in reader:
+                data_user.append(j)
+                if self.login_edit.text() in j: #сверка с базой данных, есть ли уже пользователи с таким логином
+                    self.format.setText('Такой логин уже зарегестрирован')
+                    log_flag = False
+                    break
+            if self.password_conf_edit.text() == '': #проверка строки с подтверждением пароля
+                log_flag = False
+            if self.password_edit.text() == self.password_conf_edit.text() and log_flag is True:
+                if self.login_edit.text() != '' and self.password_edit.text() != '' and (
+                        self.password_conf_edit.text() != ''):
+                    for s in self.login_edit.text(): #проверка на знаки и буквы в логине
+                        if s.isascii() is True:
+                            log_flag = True
+                        else:
+                            log_flag = False
+                            self.format.setText('Неверный формат логина')
+                            break
+                else:
+                    self.format.setText('Все строчки пусты')
+            else:
+                self.format.setText('Ошибка в логине или пароле')
+
+            if log_flag is True:
+                self.format.setText('Регистрация Успешна!')
+                self.user_enter.show()
+                self.password_conf_edit.hide()
+                self.password_conf.hide()
+                end = []
+                end.append(self.login_edit.text())
+                end.append(self.password_edit.text())
+                with open("Base_users.csv", mode="w", encoding='utf-8') as w_file:
+                    file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
+                    for k in data_user: #перезапись всех логинов и паролей
+                        file_writer.writerow(k)
+                    file_writer.writerow(end) #добавление нового пользователя в систему
+
     def enter_user(self):  # вход в систему
         data_1 = []
         global data
@@ -836,7 +885,7 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
             if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
                 # пустое поле
                 self.format.setText('Неверный формат логина или пароля')
-            for s in self.login_edit.text():  # проверка знаков на кириллицу и знаки
+            for s in self.login_edit.text():  # проверка знаков на знаки и буквы в логине
                 if s.isascii() is False:
                     log_flag = False
                     self.format.setText('Неверный формат логина')
@@ -853,53 +902,6 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
                             break
             form.show()
             Enter_Window.close(self)
-
-    def registr(self):
-        data_user = []
-        log_flag = True
-
-        self.admin_enter.hide()
-        self.user_enter.hide()
-
-        self.password_conf.show()
-        self.password_conf_edit.show()
-
-        with open('Base_users.csv', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            for j in reader:
-                data_user.append(j)
-                if self.login_edit.text() in j:
-                    self.format.setText('Такой логин уже зарегестрирован')
-                    log_flag = False
-                    break
-            if self.password_conf_edit.text() == '':
-                log_flag = False
-            if self.password_edit.text() == self.password_conf_edit.text() and log_flag is True:
-                if self.login_edit.text() != '' and self.password_edit.text() != '' and (
-                        self.password_conf_edit.text() != ''):
-                    for s in self.login_edit.text():
-                        if s.isascii() is True:
-                            log_flag = True
-                        else:
-                            log_flag = False
-                            self.format.setText('Неверный формат логина')
-                            break
-                else:
-                    self.format.setText('Все строчки пусты')
-            else:
-                self.format.setText('Ошибка в логине или пароле')
-
-            if log_flag is True:
-                self.format.setText('Регистрация Успешна!')
-                self.user_enter.show()
-                end = []
-                end.append(self.login_edit.text())
-                end.append(self.password_edit.text())
-                with open("Base_users.csv", mode="w", encoding='utf-8') as w_file:
-                    file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
-                    for k in data_user:
-                        file_writer.writerow(k)
-                    file_writer.writerow(end)
 
 
 class Add_del_Window(QMainWindow):  # окно с добавлением товаров в базу данных
@@ -934,23 +936,23 @@ class Add_del_Window(QMainWindow):  # окно с добавлением тов�
     def add_col(self):  # процесс добавление товаров
         base = []
         with open('Base.csv', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
+            reader = csv.reader(csvfile, delimiter=';')#чтение из файла
             for j in reader:
-                base.append(j)
+                base.append(j) #добавление данных в список
             with open("Base.csv", mode="w", encoding='utf-8') as w_file:
-                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
+                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r") #открытие записи файла
                 for k in base:
-                    file_writer.writerow(k)
+                    file_writer.writerow(k) #запись старой информации о товарах
                 end = []
                 end.append(self.name.text())
                 end.append(self.cost.text())
                 end.append(self.count.text())
                 end.append(self.where.text())
-                file_writer.writerow(end)
+                file_writer.writerow(end) #добавление нового товара
         form.show()
         Add_del_Window.close(self)
 
-    def dell_col(self):
+    def dell_col(self): #процесс удаления товаров
         base = []
         with open('Base.csv', encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
