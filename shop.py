@@ -874,11 +874,10 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
                     file_writer.writerow(end) #добавление нового пользователя в систему
 
     def enter_user(self):  # вход в систему
-        data_1 = []
         global data
         if self.sender().text() == 'Войти как Администратор':
             base_users = 'Base_adm.csv'
-        if self.sender().text() == 'Войти' or self.sender().text() == 'Sing up':
+        if self.sender().text() == 'Войти':
             base_users = 'Base_users.csv'
         with open(base_users, encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
