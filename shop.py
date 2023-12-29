@@ -643,7 +643,7 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         self.SearchBTN.clicked.connect(self.search)
         self.update.clicked.connect(self.update_data)
         self.add.hide()
-        self.add.clicked.connect(self.add_new)
+        self.add.clicked.connect(self.add_del)
 
     def loadTable(self, table_name):  # загрузка таблицы базы данных
         with open(table_name, encoding="utf8") as csvfile:
@@ -707,7 +707,7 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         else:
             self.login.setText('Не удалось войти')
 
-    def add_new(self):  # Окно с добавлением новых товаров в базу данных
+    def add_del(self):  # Окно с добавлением новых товаров в базу данных
         self.a_w = Add_Window(self)
         self.a_w.show()
         Main_Window.hide(self)
@@ -794,7 +794,7 @@ class Add_Window(QMainWindow): #окно с добавлением товаро�
                 for k in base:
                     file_writer.writerow(k)
                 end = []
-                end.append(self.name.text())
+                end.append(self.name.text()),
                 end.append(self.cost.text())
                 end.append(self.count.text())
                 end.append(self.where.text())
