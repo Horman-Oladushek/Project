@@ -723,7 +723,7 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         self.e_w.show()
         Main_Window.hide(self)
 
-    def enter_rename(self):  # Изменение кнопки входа, а так же username в главном окне
+    def user_update(self):  # Изменение кнопки входа, а так же username в главном окне
         self.login.setText(data[0])
         self.EnterBTN_Main.setText('Войти в другой аккаунт')
         self.EnterBTN_Main.setGeometry(770, 80, 295, 41)
@@ -745,12 +745,12 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
                         self.admin = True
                     else:
                         self.admin = False
-            self.enter_rename()
+            self.user_update()
             self.loadTable('Base.csv')
         else:
             self.login.setText('Не удалось войти')
 
-    def add_del(self):  # Окно с добавлением новых товаров в базу данных
+    def add_del(self):  # Окно с добавлением новых и удалением старых товаров в базу данных
         self.a_w = Add_del_Window(self)
         self.a_w.show()
         Main_Window.hide(self)
