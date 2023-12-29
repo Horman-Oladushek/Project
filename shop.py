@@ -439,7 +439,7 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string>Войти как Администратор</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="enterBTN">
+   <widget class="QPushButton" name="user_enter">
     <property name="geometry">
      <rect>
       <x>500</x>
@@ -478,7 +478,7 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
      </font>
     </property>
     <property name="text">
-     <string></string>
+     <string/>
     </property>
    </widget>
   </widget>
@@ -761,41 +761,17 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
         super().__init__(parent)
         f_1 = io.StringIO(enter_window)
         uic.loadUi(f_1, self)
-        self.m_w = Main_Window()
-        self.enterBTN.clicked.connect(self.enter_user)
-        self.admin_enter.clicked.connect(self.enter_adm)
+        self.user_enter.clicked.connect(self.enter_user)
+        self.admin_enter.clicked.connect(self.enter_user)
 
-    def enter_adm(self):  # Проверка входа в аккаунт админа
-        global data
-        data_1 = []
-        with open('Base_adm.csv', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
-                # пустое поле
-                self.format.setText('Неверный формат логина или пароля')
-            for s in self.login_edit.text():  # проверка знаков на кириллицу и знаки
-                if s.isascii() is False:
-                    log_flag = False
-                    self.format.setText('Неверный формат логина')
-                    break
-                else:
-                    log_flag = True
-            if self.login_edit.text() != '' and log_flag is True and self.password_edit.text() != '':
-                for x in reader:
-                    if self.login_edit.text() in x:
-                        data_1 = x
-                        if self.login_edit.text() == data_1[0] and self.password_edit.text() == data_1[1]:  # проверка
-                            # совпадения пароля, который записан в системе
-                            data = x
-                            break
-
-                form.show()
-                Enter_Window.close(self)
-
-    def enter_user(self):
+    def enter_user(self): #вход в систему
         data_1 = []
         global data
-        with open('Base_users.csv', encoding='utf8') as csvfile:
+        if self.sender().text() == 'Войти как Администратор':
+            base_users = 'Base_adm.csv'
+        if self.sender().text() == 'Войти':
+            base_users = 'Base_users.csv'
+        with open(base_users, encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
                 # пустое поле
