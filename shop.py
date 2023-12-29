@@ -288,6 +288,19 @@ main_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string>Добавить</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="dell">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>760</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Удалить</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -486,7 +499,7 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
 </ui>
 '''
 # окно с добавлением новых товаров в базу данных
-add_window = '''<?xml version="1.0" encoding="UTF-8"?>
+add_del_window = '''<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -542,7 +555,7 @@ add_window = '''<?xml version="1.0" encoding="UTF-8"?>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="label_name">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -555,7 +568,7 @@ add_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string>Наименование товара:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_cost">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -568,7 +581,7 @@ add_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string>Цена товара:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="label_count">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -581,7 +594,7 @@ add_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string>Количество товара:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="label_where">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -605,6 +618,32 @@ add_window = '''<?xml version="1.0" encoding="UTF-8"?>
     </property>
     <property name="text">
      <string>Добавить</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_dell">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>611</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>которого вы хотите удалить (пишите название товара полность, в соответствии с базой данных)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="dellButton">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>100</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Удалить</string>
     </property>
    </widget>
   </widget>
@@ -643,7 +682,9 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         self.SearchBTN.clicked.connect(self.search)
         self.update.clicked.connect(self.update_data)
         self.add.hide()
+        self.dell.hide()
         self.add.clicked.connect(self.add_del)
+        self.dell.clicked.connect(self.add_del)
 
     def loadTable(self, table_name):  # загрузка таблицы базы данных
         with open(table_name, encoding="utf8") as csvfile:
@@ -688,8 +729,10 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         self.EnterBTN_Main.setGeometry(770, 80, 295, 41)
         if self.admin:
             self.add.show()
+            self.dell.show()
         else:
             self.add.hide()
+            self.dell.hide()
 
     def update_data(self):  # Обновление базы данных с товаром, а так же проверка аккаунта на админа
         global data
@@ -708,7 +751,7 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
             self.login.setText('Не удалось войти')
 
     def add_del(self):  # Окно с добавлением новых товаров в базу данных
-        self.a_w = Add_Window(self)
+        self.a_w = Add_del_Window(self)
         self.a_w.show()
         Main_Window.hide(self)
 
@@ -728,9 +771,9 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
         with open('Base_adm.csv', encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
-                                                                                  # пустое поле
+                # пустое поле
                 self.format.setText('Неверный формат логина или пароля')
-            for s in self.login_edit.text():    #проверка знаков на кириллицу и знаки
+            for s in self.login_edit.text():  # проверка знаков на кириллицу и знаки
                 if s.isascii() is False:
                     log_flag = False
                     self.format.setText('Неверный формат логина')
@@ -741,8 +784,8 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
                 for x in reader:
                     if self.login_edit.text() in x:
                         data_1 = x
-                        if self.login_edit.text() == data_1[0] and self.password_edit.text() == data_1[1]: #проверка
-                                                                        # совпадения пароля, который записан в системе
+                        if self.login_edit.text() == data_1[0] and self.password_edit.text() == data_1[1]:  # проверка
+                            # совпадения пароля, который записан в системе
                             data = x
                             break
 
@@ -776,14 +819,36 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
             Enter_Window.close(self)
 
 
-class Add_Window(QMainWindow): #окно с добавлением товаров в базу данных
+class Add_del_Window(QMainWindow):  # окно с добавлением товаров в базу данных
     def __init__(self, parent=None):
         super().__init__(parent)
-        f_1 = io.StringIO(add_window)
+        f_1 = io.StringIO(add_del_window)
         uic.loadUi(f_1, self)
-        self.addButton.clicked.connect(self.add_col)
+        if self.sender().text() == 'Добавить':
+            self.label_dell.hide()
+            self.dellButton.hide()
+            self.label_cost.show()
+            self.cost.show()
+            self.label_count.show()
+            self.count.show()
+            self.label_where.show()
+            self.where.show()
+            self.addButton.show()
+            self.addButton.clicked.connect(self.add_col)
+        else:
+            self.label_cost.hide()
+            self.cost.hide()
+            self.label_count.hide()
+            self.count.hide()
+            self.label_where.hide()
+            self.where.hide()
+            self.addButton.hide()
+        if self.sender().text() == 'Удалить':
+            self.label_dell.show()
+            self.dellButton.show()
+            self.dellButton.clicked.connect(self.dell_col)
 
-    def add_col(self): #процесс добавление товаров
+    def add_col(self):  # процесс добавление товаров
         base = []
         with open('Base.csv', encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
@@ -794,13 +859,29 @@ class Add_Window(QMainWindow): #окно с добавлением товаро�
                 for k in base:
                     file_writer.writerow(k)
                 end = []
-                end.append(self.name.text()),
+                end.append(self.name.text())
                 end.append(self.cost.text())
                 end.append(self.count.text())
                 end.append(self.where.text())
                 file_writer.writerow(end)
         form.show()
-        Add_Window.close(self)
+        Add_del_Window.close(self)
+
+    def dell_col(self):
+        base = []
+        with open('Base.csv', encoding='utf8') as csvfile:
+            reader = csv.reader(csvfile, delimiter=';')
+            for j in reader:
+                base.append(j)
+            with open("Base.csv", mode="w", encoding='utf-8') as w_file:
+                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
+                for k in base:
+                    if self.name.text() == k[0]:
+                        pass
+                    else:
+                        file_writer.writerow(k)
+        form.show()
+        Add_del_Window.close(self)
 
 
 def except_hook(cls, exception, traceback):
