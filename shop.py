@@ -338,9 +338,9 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>200</x>
       <y>30</y>
-      <width>81</width>
+      <width>291</width>
       <height>51</height>
      </rect>
     </property>
@@ -353,7 +353,7 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
      </font>
     </property>
     <property name="text">
-     <string>Вход</string>
+     <string>Вход администратора</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="login_edit">
@@ -423,8 +423,8 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
    <widget class="QPushButton" name="admin_enter">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>0</y>
+      <x>360</x>
+      <y>310</y>
       <width>261</width>
       <height>31</height>
      </rect>
@@ -437,27 +437,6 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
     </property>
     <property name="text">
      <string>Войти как Администратор</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="user_enter">
-    <property name="geometry">
-     <rect>
-      <x>518</x>
-      <y>320</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Войти</string>
     </property>
    </widget>
    <widget class="QLabel" name="format">
@@ -481,63 +460,6 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="reg">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>320</y>
-      <width>121</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Регистрация</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="password_conf_edit">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>260</y>
-      <width>451</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="password_conf">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>230</y>
-      <width>111</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Подтвердите 
-пароль:</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -545,7 +467,7 @@ enter_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <x>0</x>
      <y>0</y>
      <width>656</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -818,67 +740,67 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
         super().__init__(parent)
         f_1 = io.StringIO(enter_window)
         uic.loadUi(f_1, self)
-        self.password_conf.hide()
-        self.password_conf_edit.hide()
-        self.reg.clicked.connect(self.registr)
-        self.user_enter.clicked.connect(self.enter_user)
+        # self.password_conf.hide() # ТЕКСТ ПОДТВЕРЖДЕНИЕ ПАРОЛЯ
+        # self.password_conf_edit.hide() # ПОЛЕ ПОДТВЕРЖДЕНИЕ ПАРОЛЯ
+        # self.reg.clicked.connect(self.registr) БЫЛА КНОПКА РЕГИСТРАЦИИ
+        # self.user_enter.clicked.connect(self.enter_user) БЫЛА КНОПКА ВХОДА В АККАУНТ ПОЛЬЗОВАТЕЛЯ
         self.admin_enter.clicked.connect(self.enter_user)
 
-    def registr(self): #регистрация нового пользователя
-        data_user = []
-        log_flag = True
-
-        self.admin_enter.hide()
-        self.user_enter.hide()
-
-        self.password_conf.show()
-        self.password_conf_edit.show()
-
-        with open('Base_users.csv', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            for j in reader:
-                data_user.append(j)
-                if self.login_edit.text() in j: #сверка с базой данных, есть ли уже пользователи с таким логином
-                    self.format.setText('Такой логин уже зарегестрирован')
-                    log_flag = False
-                    break
-            if self.password_conf_edit.text() == '': #проверка строки с подтверждением пароля
-                log_flag = False
-            if self.password_edit.text() == self.password_conf_edit.text() and log_flag is True:
-                if self.login_edit.text() != '' and self.password_edit.text() != '' and (
-                        self.password_conf_edit.text() != ''):
-                    for s in self.login_edit.text(): #проверка на знаки и буквы в логине
-                        if s.isascii() is True:
-                            log_flag = True
-                        else:
-                            log_flag = False
-                            self.format.setText('Неверный формат логина')
-                            break
-                else:
-                    self.format.setText('Все строчки пусты')
-            else:
-                self.format.setText('Ошибка в логине или пароле')
-
-            if log_flag is True:
-                self.format.setText('Регистрация Успешна!')
-                self.user_enter.show()
-                self.password_conf_edit.hide()
-                self.password_conf.hide()
-                end = []
-                end.append(self.login_edit.text())
-                end.append(self.password_edit.text())
-                with open("Base_users.csv", mode="w", encoding='utf-8') as w_file:
-                    file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
-                    for k in data_user: #перезапись всех логинов и паролей
-                        file_writer.writerow(k)
-                    file_writer.writerow(end) #добавление нового пользователя в систему
+    # def registr(self): #регистрация нового пользователя
+    #     data_user = []
+    #     log_flag = True
+    #
+    #     self.admin_enter.hide()
+    #     self.user_enter.hide()
+    #
+    #     self.password_conf.show()
+    #     self.password_conf_edit.show()
+    #
+    #     with open('Base_users.csv', encoding='utf8') as csvfile:
+    #         reader = csv.reader(csvfile, delimiter=';')
+    #         for j in reader:
+    #             data_user.append(j)
+    #             if self.login_edit.text() in j: #сверка с базой данных, есть ли уже пользователи с таким логином
+    #                 self.format.setText('Такой логин уже зарегестрирован')
+    #                 log_flag = False
+    #                 break
+    #         if self.password_conf_edit.text() == '': #проверка строки с подтверждением пароля
+    #             log_flag = False
+    #         if self.password_edit.text() == self.password_conf_edit.text() and log_flag is True:
+    #             if self.login_edit.text() != '' and self.password_edit.text() != '' and (
+    #                     self.password_conf_edit.text() != ''):
+    #                 for s in self.login_edit.text(): #проверка на знаки и буквы в логине
+    #                     if s.isascii() is True:
+    #                         log_flag = True
+    #                     else:
+    #                         log_flag = False
+    #                         self.format.setText('Неверный формат логина')
+    #                         break
+    #             else:
+    #                 self.format.setText('Все строчки пусты')
+    #         else:
+    #             self.format.setText('Ошибка в логине или пароле')
+    #
+    #         if log_flag is True:
+    #             self.format.setText('Регистрация Успешна!')
+    #             self.user_enter.show()
+    #             self.password_conf_edit.hide()
+    #             self.password_conf.hide()
+    #             end = []
+    #             end.append(self.login_edit.text())
+    #             end.append(self.password_edit.text())
+    #             with open("Base_users.csv", mode="w", encoding='utf-8') as w_file:
+    #                 file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
+    #                 for k in data_user: #перезапись всех логинов и паролей
+    #                     file_writer.writerow(k)
+    #                 file_writer.writerow(end) #добавление нового пользователя в систему
 
     def enter_user(self):  # вход в систему
         global data
         if self.sender().text() == 'Войти как Администратор':
             base_users = 'Base_adm.csv'
-        if self.sender().text() == 'Войти':
-            base_users = 'Base_users.csv'
+        # if self.sender().text() == 'Войти':
+        #     base_users = 'Base_users.csv'
         with open(base_users, encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
@@ -899,8 +821,9 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
                             # совпадения пароля, который записан в системе
                             data = x
                             break
-            form.show()
-            Enter_Window.close(self)
+            if log_flag is True:
+                form.show()
+                Enter_Window.close(self)
 
 
 class Add_del_Window(QMainWindow):  # окно с добавлением товаров в базу данных
