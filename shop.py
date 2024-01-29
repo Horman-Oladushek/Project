@@ -576,14 +576,14 @@ add_del_window = '''<?xml version="1.0" encoding="UTF-8"?>
    <widget class="QLabel" name="label_where">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>50</x>
       <y>150</y>
       <width>161</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Где доступен для вывоза:</string>
+     <string>Место на складе:</string>
     </property>
    </widget>
    <widget class="QPushButton" name="addButton">
@@ -632,7 +632,7 @@ add_del_window = '''<?xml version="1.0" encoding="UTF-8"?>
      <x>0</x>
      <y>0</y>
      <width>697</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -641,6 +641,7 @@ add_del_window = '''<?xml version="1.0" encoding="UTF-8"?>
  <resources/>
  <connections/>
 </ui>
+
 '''
 
 # СЮДА UIC
@@ -671,8 +672,8 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
             title = next(reader)
             self.listOfItems.setColumnCount(len(title))
             self.listOfItems.setHorizontalHeaderLabels(title)
-            header = self.listOfItems.horizontalHeader()  # растягиваем таблицу
-            header.setStretchLastSection(True)
+            self.listOfItems.horizontalHeader().setStretchLastSection(True)  # растягиваем таблицу
+            # header.setStretchLastSection(True)
             self.listOfItems.setRowCount(0)
             for i, row in enumerate(reader):
                 self.listOfItems.setRowCount(
@@ -858,23 +859,23 @@ class Add_del_Window(QMainWindow):  # окно с добавлением тов�
     def add_col(self):  # процесс добавление товаров
         base = []
         with open('Base.csv', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')#чтение из файла
+            reader = csv.reader(csvfile, delimiter=';')  # чтение из файла
             for j in reader:
-                base.append(j) #добавление данных в список
+                base.append(j)  # добавление данных в список
             with open("Base.csv", mode="w", encoding='utf-8') as w_file:
-                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r") #открытие записи файла
+                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")  # открытие записи файла
                 for k in base:
-                    file_writer.writerow(k) #запись старой информации о товарах
+                    file_writer.writerow(k)  # запись старой информации о товарах
                 end = []
                 end.append(self.name.text())
                 end.append(self.cost.text())
                 end.append(self.count.text())
                 end.append(self.where.text())
-                file_writer.writerow(end) #добавление нового товара
+                file_writer.writerow(end)  # добавление нового товара
         form.show()
         Add_del_Window.close(self)
 
-    def dell_col(self): #процесс удаления товаров
+    def dell_col(self):  # процесс удаления товаров
         base = []
         with open('Base.csv', encoding='utf8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
