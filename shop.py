@@ -798,6 +798,8 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
 
     def enter_user(self):  # вход в систему
         global data
+        log_flag = False
+        pass_log = False
         if self.sender().text() == 'Войти как Администратор':
             base_users = 'Base_adm.csv'
         # if self.sender().text() == 'Войти':
@@ -807,8 +809,10 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
             if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
                 # пустое поле
                 self.format.setText('Неверный формат логина или пароля')
+            else:
+                pass_log = True
             for s in self.login_edit.text():  # проверка знаков на знаки и буквы в логине
-                if s.isascii() is False:
+                if s.isascii() is False and pass_log is True:
                     log_flag = False
                     self.format.setText('Неверный формат логина')
                     break
