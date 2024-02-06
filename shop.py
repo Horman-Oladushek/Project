@@ -641,7 +641,6 @@ add_del_window = '''<?xml version="1.0" encoding="UTF-8"?>
  <resources/>
  <connections/>
 </ui>
-
 '''
 
 # СЮДА UIC
