@@ -1,12 +1,14 @@
-﻿import io
+﻿import sqlite3
 import csv
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QApplication
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QApplication, QLineEdit
 from PyQt5.QtCore import Qt
 
 data = []  # Для работы с username и проверки админа
+
+connection = sqlite3.connect("Base.db")
 
 
 class Main_Window(QMainWindow):  # Главное окно, с базой данных, поиском, входом, а так же
@@ -14,7 +16,7 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
     def __init__(self):
         super().__init__()
         uic.loadUi('style/Main_Wdindow.ui', self)
-        self.loadTable('deleted_files/Base.csv')
+        self.loadTable()
 
         self.EnterBTN_Main.clicked.connect(self.enter)
         self.SearchBTN.clicked.connect(self.search)
@@ -24,22 +26,24 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         self.add.clicked.connect(self.add_del)
         self.dell.clicked.connect(self.add_del)
 
-    def loadTable(self, table_name):  # загрузка таблицы базы данных
-        with open(table_name, encoding="utf8") as csvfile:
-            reader = csv.reader(csvfile, delimiter=';', quotechar='"')
-            title = next(reader)
-            self.listOfItems.setColumnCount(len(title))
-            self.listOfItems.setHorizontalHeaderLabels(title)
-            self.listOfItems.horizontalHeader().setStretchLastSection(True)  # растягиваем таблицу
-            # header.setStretchLastSection(True)
-            self.listOfItems.setRowCount(0)
-            for i, row in enumerate(reader):
-                self.listOfItems.setRowCount(
-                    self.listOfItems.rowCount() + 1)
-                for j, elem in enumerate(row):
-                    self.listOfItems.setItem(
-                        i, j, QTableWidgetItem(elem))
-        self.listOfItems.resizeColumnsToContents()
+    def loadTable(self):  # загрузка таблицы базы данных
+        # Получим результат запроса,
+        # который ввели в текстовое поле
+        query = 'select * from Items'
+        res = connection.cursor().execute(query).fetchall()
+        # Заполним размеры таблицы
+
+        self.listOfItems.setColumnCount(4)
+        self.listOfItems.horizontalHeader().setStretchLastSection(True)
+        self.listOfItems.setHorizontalHeaderLabels(["Название", "Цена", "Количество", "Место на складе"])
+        self.listOfItems.setRowCount(0)
+        # Заполняем таблицу элементами
+        for i, row in enumerate(res):
+            self.listOfItems.setRowCount(
+                self.listOfItems.rowCount() + 1)
+            for j, elem in enumerate(row):
+                self.listOfItems.setItem(
+                    i, j, QTableWidgetItem(str(elem)))
 
     def search(self, s):  # Поиск в базе данных
         # Отчищаем выбранные поля.
@@ -76,15 +80,15 @@ class Main_Window(QMainWindow):  # Главное окно, с базой дан
         global data
         if data != []:
             self.data_user = data
-            with open('deleted_files/Base_adm.csv', encoding='utf8') as csvfile:
-                reader = csv.reader(csvfile, delimiter=';')
-                for j in reader:
-                    if self.data_user == j:
-                        self.admin = True
-                    else:
-                        self.admin = False
+            res = connection.cursor().execute('select * from Admins').fetchall()
+            for j in res:
+                print(j)
+                if self.data_user == j:
+                    self.admin = True
+                else:
+                    self.admin = False
             self.user_update()
-            self.loadTable('Base.csv')
+            self.loadTable()
         else:
             self.login.setText('Не удалось войти')
 
@@ -157,35 +161,34 @@ class Enter_Window(QMainWindow):  # Окно входа в систему
         global data
         log_flag = False
         pass_log = False
-        if self.sender().text() == 'Войти как Администратор':
-            base_users = 'Base_adm.csv'
+        res = connection.cursor().execute('select * from Admins').fetchall()
+        # if self.sender().text() == 'Войти как Администратор':
+        #     base_users = 'deleted_files/Base_adm.csv'
         # if self.sender().text() == 'Войти':
         #     base_users = 'Base_users.csv'
-        with open(base_users, encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
-                # пустое поле
-                self.format.setText('Неверный формат логина или пароля')
+        if self.login_edit.text() == '' and self.password_edit.text() == '':  # Проверка пароля и логина на
+            # пустое поле
+            self.format.setText('Неверный формат логина или пароля')
+        else:
+            pass_log = True
+        for s in self.login_edit.text():  # проверка знаков на знаки и буквы в логине
+            if s.isascii() is False and pass_log is True:
+                log_flag = False
+                self.format.setText('Неверный формат логина')
+                break
             else:
-                pass_log = True
-            for s in self.login_edit.text():  # проверка знаков на знаки и буквы в логине
-                if s.isascii() is False and pass_log is True:
-                    log_flag = False
-                    self.format.setText('Неверный формат логина')
-                    break
-                else:
-                    log_flag = True
-            if self.login_edit.text() != '' and log_flag is True and self.password_edit.text() != '':
-                for x in reader:  # проверка на совпадение с базой пользователей
-                    if self.login_edit.text() in x:
-                        data_1 = x
-                        if self.login_edit.text() == data_1[0] and self.password_edit.text() == data_1[1]:  # проверка
-                            # совпадения пароля, который записан в системе
-                            data = x
-                            break
-            if log_flag is True:
-                form.show()
-                Enter_Window.close(self)
+                log_flag = True
+        if self.login_edit.text() != '' and log_flag is True and self.password_edit.text() != '':
+            for x in res:  # проверка на совпадение с базой пользователей
+                if self.login_edit.text() in x:
+                    data_1 = x
+                    if self.login_edit.text() == data_1[0] and self.password_edit.text() == data_1[1]:  # проверка
+                        # совпадения пароля, который записан в системе
+                        data = x
+                        break
+        if log_flag is True:
+            form.show()
+            Enter_Window.close(self)
 
 
 class Add_del_Window(QMainWindow):  # окно с добавлением товаров в базу данных
